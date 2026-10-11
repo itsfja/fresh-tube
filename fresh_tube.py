@@ -217,7 +217,7 @@ def write_outputs(passed, outdir):
     links = [
         f"https://www.youtube.com/watch?v={e['id']}" for e, _ in passed
     ]
-    (outdir / "links.txt").write_text("\n".join(links) + "\n")
+    (outdir / "links.txt").write_text("\n".join(links) + "\n", encoding="utf-8")
 
     rows = []
     for e, v in passed:
@@ -245,7 +245,7 @@ def write_outputs(passed, outdir):
         f"<h2>Fresh English uploads ({len(passed)} videos)</h2>"
         + "\n".join(rows)
     )
-    (outdir / "index.html").write_text(doc)
+    (outdir / "index.html").write_text(doc, encoding="utf-8")
     log(f"\nWrote {outdir/'links.txt'} and {outdir/'index.html'}")
 
 
