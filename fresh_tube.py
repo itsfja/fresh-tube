@@ -78,6 +78,23 @@ def log(msg):
     print(msg, file=sys.stderr, flush=True)
 
 
+class SilentLogger:
+    """Swallows yt-dlp's per-video errors (removed/private videos are common
+    in same-day search results, and they're handled by the caller anyway)."""
+
+    def debug(self, msg, *args):
+        pass
+
+    def info(self, msg, *args):
+        pass
+
+    def warning(self, msg, *args):
+        pass
+
+    def error(self, msg, *args):
+        pass
+
+
 def search_word(ydl, word, max_results=100):
     """Return flat search entries for one word, sorted by upload date today."""
     q = urllib.parse.urlencode({"search_query": word, "sp": SP_TODAY_SORT_DATE})
@@ -160,6 +177,7 @@ def enrich(candidates, batch_size=8):
         "retries": 1,
         "extract_flat": False,
         "sleep_interval_requests": 0.3,
+        "logger": SilentLogger(),
     }
     passed = []
     with yt_dlp.YoutubeDL(opts) as ydl:
