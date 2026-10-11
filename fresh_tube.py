@@ -180,25 +180,27 @@ def enrich(candidates, batch_size=8):
         "logger": SilentLogger(),
     }
     passed = []
+    dead = 0
     with yt_dlp.YoutubeDL(opts) as ydl:
-        for i in range(0, len(candidates), batch_size):
-            batch = candidates[i : i + batch_size]
-            for e in batch:
-                vid = e["id"]
-                try:
-                    v = ydl.extract_info(
-                        f"https://www.youtube.com/watch?v={vid}",
-                        download=False,
-                        process=False,
-                    )
-                    ok, reason = passes_deep_filters(v)
-                except Exception:
-                    ok, reason = False, "error"
-                if ok:
-                    passed.append((e, v))
-                else:
-                    log(f"    - {vid} {reason}")
+        for e in candidates:
+            vid = e["id"]
+            try:
+                v = ydl.extract_info(
+                    f"https://www.youtube.com/watch?v={vid}",
+                    download=False,
+                    process=False,
+                )
+                ok, reason = passes_deep_filters(v)
+            except Exception:
+                ok, reason = False, "error"
+            if ok:
+                passed.append((e, v))
+            else:
+                if reason == "error":
+                    dead += 1
+                log(f"    - {vid} {reason}")
             time.sleep(0.2)
+    log(f"  unavailable/removed: {dead}")
     return passed
 
 
