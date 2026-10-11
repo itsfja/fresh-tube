@@ -78,6 +78,18 @@ def log(msg):
     print(msg, file=sys.stderr, flush=True)
 
 
+def harden_console():
+    """Never let a Unicode title kill the run on consoles with legacy
+    encodings (Windows cp1252, especially when output is redirected)."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure:
+            try:
+                reconfigure(errors="replace")
+            except Exception:
+                pass
+
+
 class SilentLogger:
     """Swallows yt-dlp's per-video errors (removed/private videos are common
     in same-day search results, and they're handled by the caller anyway)."""
@@ -261,6 +273,8 @@ def main():
 
     if args.seed is not None:
         random.seed(args.seed)
+
+    harden_console()
 
     pool = SEED_WORDS[:]
     random.shuffle(pool)
